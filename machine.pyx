@@ -1,8 +1,11 @@
+#cython: language_level=3
 import enum
 import array 
 from typing import List, Dict
+import cython
 
-class OpCode(enum.IntEnum):
+#class OpCode(enum.IntEnum):
+cdef enum OpCode:
     ADD = 1
     MUL = 2
     SAV = 3
@@ -16,24 +19,33 @@ class OpCode(enum.IntEnum):
     FIN = 99
     UNK = -1
 
-class Mode(enum.IntEnum):
+#class Mode(enum.IntEnum):
+cdef enum Mode:
     POS = 0
     IMM = 1
 
-class Machine:
-    def opcode(self, v :int) -> OpCode:
-        vs : str = str(v)
-        return OpCode(int(vs[-2:]))
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+cdef class Machine:
+    cdef public cython.int io 
+    iptr : cython.int 
+    params_count : Dict[OpCode, int]
+    mode : cython.int
+    intcodes : cython.long[:]
 
-    def param1(self, v :int) -> Mode:
+    cdef OpCode opcode(self, v :cython.int):
+        vs : str = str(v)
+        return int(vs[-2:])
+
+    cdef Mode param1(self, v :cython.int):
         vs : str = str(v)
         vs = '0'*(4-len(vs)) + vs 
-        return Mode(int(vs[-3]))
+        return int(vs[-3])
     
-    def param2(self, v : int) -> Mode:
+    cdef Mode param2(self, v : cython.int):
         vs : str = str(v)
         vs = '0'*(4-len(vs)) + vs 
-        return Mode(int(vs[-4]))
+        return int(vs[-4])
 
     def  __init__(self, intcodes: List[int], io=1):
         self.intcodes = array.array("l", intcodes)  # i can haz efficient
@@ -61,14 +73,13 @@ class Machine:
                 if self.params_count[_op] > 2:
                     param2  = self.param2(op)
                 op = _op
-            op = OpCode(op)
                 # convert to parameter mode or sh
-            stride : int = self.params_count[op]
+            stride : cython.int = self.params_count[op]
             self.step(op, stride, param1, param2 ) # moves iptr
         self.iptr = 0
 
-    def step(self, opcode : OpCode, stride : int, param1 : Mode,
-    param2 : Mode ) -> None:
+    cdef void step(self, opcode : OpCode, stride : cython.int, param1 : Mode,
+    param2 : Mode ):
         ins: array.array = self.intcodes[self.iptr : self.iptr + stride]
         advance : bool  = True
         codes = self.intcodes
@@ -79,9 +90,9 @@ class Machine:
             self.iptr = len(self.intcodes) # advance to the end
             return 
         if stride > 1:
-            v1 : int = ins[1] if param1 == Mode.IMM else codes[ins[1]]
+            v1 : cython.int = ins[1] if param1 == Mode.IMM else codes[ins[1]]
         if stride > 2:
-            v2 : int = ins[2] if param2 == Mode.IMM else codes[ins[2]]
+            v2 : cython.int = ins[2] if param2 == Mode.IMM else codes[ins[2]]
         if opcode == OpCode.ADD:
             loc = ins[3]
             codes[loc] = v1 + v2
@@ -122,7 +133,7 @@ class Machine:
 
     @property
     def codes(self) -> List[int]:
-        return self.intcodes.tolist()
+        return list(self.intcodes)
 
     @codes.setter
     def codes(self, intcodes: List[int]) -> None:
