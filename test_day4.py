@@ -18,10 +18,9 @@ def test_pass():
     assert pass_criteria(223450) == False
     assert pass_criteria(123789) == False
 
-from numba.typed import List
 def d(n):
     ds = to_digits(n)
-    l = List()
+    l = list()
     for i in ds:
         l.append(i)
     return l

@@ -42,7 +42,6 @@ import attr
 import logging
 import itertools
 import array
-import numba as nb
 
 logging.basicConfig(filename="day5.log", level=logging.DEBUG)
 

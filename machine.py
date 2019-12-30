@@ -20,6 +20,7 @@ class Mode(enum.IntEnum):
     POS = 0
     IMM = 1
 
+
 class Machine:
     def opcode(self, v :int) -> OpCode:
         vs : str = str(v)
@@ -69,12 +70,12 @@ class Machine:
 
     def step(self, opcode : OpCode, stride : int, param1 : Mode,
     param2 : Mode ) -> None:
-        ins: array.array = self.intcodes[self.iptr : self.iptr + stride]
+        ins  : array.array = self.intcodes[self.iptr : self.iptr + stride]
+        #ins  = self.intcodes[self.iptr : self.iptr + stride]
         advance : bool  = True
         codes = self.intcodes
         if len(ins) != stride and len(ins) != 1:
-            return
-            #raise ValueError(f"uknown instr: {ins}, stride: {stride}")
+            raise ValueError(f"uknown instr: {ins}, stride: {stride}")
         if opcode == OpCode.FIN:
             self.iptr = len(self.intcodes) # advance to the end
             return 
@@ -115,8 +116,7 @@ class Machine:
             else:
                 codes[loc] = 0
         else:
-            #raise ValueError(f"uknown instr: {ins}, stride: {stride}")
-            return
+            raise ValueError(f"uknown instr: {ins}, stride: {stride}")
         if advance: 
             self.iptr += self.params_count[opcode] # advance by the instruction 
 

@@ -1,7 +1,5 @@
 from typing import List, Iterator
 import numpy as np
-import numba as nb
-from numba import jit_module
 
 
 def to_digits(n: int) -> List[int]:
@@ -65,5 +63,4 @@ def repeat_criteria(ds : List[int]) -> bool:
                 adjacents = False
             prev = tmp
     return repeats and not adjacents
-jit_module(nogil=True, cache=True)
 print(numbers_in_range())
