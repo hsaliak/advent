@@ -1,4 +1,6 @@
 #cython: language_level=3
+#cython: boundscheck=False
+#cython: nonecheck=False
 import enum
 import array 
 from typing import List, Dict
@@ -24,11 +26,9 @@ cdef enum Mode:
     POS = 0
     IMM = 1
 
-@cython.boundscheck(False)
-@cython.nonecheck(False)
 cdef class Machine:
     cdef public cython.int io 
-    iptr : cython.int 
+    iptr : cython.ulong 
     params_count : Dict[OpCode, int]
     mode : cython.int
     intcodes : cython.long[:]
@@ -63,7 +63,7 @@ cdef class Machine:
         self.iptr = 0
         while self.iptr < len(self.intcodes):
         #for i in range(self.stride, len(self.intcodes), self.stride):
-            op : int  = self.intcodes[self.iptr]
+            op : cython.ulong  = self.intcodes[self.iptr]
             param1 : Mode  =  Mode.POS
             param2 : Mode  = Mode.POS 
             if op > 10:
@@ -78,7 +78,7 @@ cdef class Machine:
             self.step(op, stride, param1, param2 ) # moves iptr
         self.iptr = 0
 
-    cdef void step(self, opcode : OpCode, stride : cython.int, param1 : Mode,
+    cdef void step(self, opcode : cython.long, stride : cython.long, param1 : Mode,
     param2 : Mode ):
         ins: array.array = self.intcodes[self.iptr : self.iptr + stride]
         advance : bool  = True
