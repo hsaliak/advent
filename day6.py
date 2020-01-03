@@ -1,33 +1,32 @@
-# landed on the moon 
+# landed on the moon
 # map of local orbit inputs is the puzzle input
 
-# every object is an orbit around 1 other object. 
+# every object is an orbit around 1 other object.
 # AAA) BBB   or AAA : BBB  (BBB is in orbit around AAA)
-# to verify this that the object is not corrupted, you need to do 
-# checksums. 
-# total number of direct orbits and indirect orbits. 
-# A orbits B and B orbits C then A indirectly orbits C 
-# like earth ) moon,  sun ) earth then sun ) moon 
+# to verify this that the object is not corrupted, you need to do
+# checksums.
+# total number of direct orbits and indirect orbits.
+# A orbits B and B orbits C then A indirectly orbits C
+# like earth ) moon,  sun ) earth then sun ) moon
 
 
-from typing import Dict, DefaultDict, Optional, List
+from typing import Dict, DefaultDict, Optional, List, Set
 
 
-
-def read_input(fname : str) -> Dict[str, str]:
+def read_input(fname: str) -> Dict[str, str]:
     d = dict()
-    with open(fname) as f :
-        lines  : List[str] = f.readlines()
-    for l in lines: 
+    with open(fname) as f:
+        lines: List[str] = f.readlines()
+    for l in lines:
         value, key = l.split(")")
         d[key.strip()] = value.strip()
     return d
 
 
-def orbit_counts(celestial : str, orbits : Dict[str, str] = {})-> int:
+def orbit_counts(celestial: str, orbits: Dict[str, str] = {}) -> int:
     "return a count of distance to root node"
     count = 0
-    try: 
+    try:
         while celestial:
             celestial = orbits[celestial]
             count += 1
@@ -36,14 +35,13 @@ def orbit_counts(celestial : str, orbits : Dict[str, str] = {})-> int:
     return count
 
 
-def orbital_distances(celest: str, 
-    orbits : Dict[str,str] = dict()) -> Dict[str, int]:
+def orbital_distances(celest: str, orbits: Dict[str, str] = dict()) -> Dict[str, int]:
     "return a dictionary of node:distance all the way to root"
-    d : Dict[str, int]  = dict()
+    d: Dict[str, int] = dict()
     count = 0
-    try: 
-        while celest: 
-            celest = orbits[celest] 
+    try:
+        while celest:
+            celest = orbits[celest]
             d[celest] = count
             count += 1
     except KeyError:
@@ -51,27 +49,29 @@ def orbital_distances(celest: str,
     return d
 
 
-def traversal_count(c1 :str , 
-    c2 : str, orbits : Dict[str,str] = dict()) -> int :
+def traversal_count(c1: str, c2: str, orbits: Dict[str, str] = dict()) -> int:
     "compute distance between two objects, which is the jumps reqd"
-    d1 = orbital_distances(c1,orbits)
-    d2 = orbital_distances(c2, orbits)
-    combined = set(d1.keys()).intersection(set(d2.keys()))
-    traversals = 0
+    d1: Dict[str, int] = orbital_distances(c1, orbits)
+    d2: Dict[str, int] = orbital_distances(c2, orbits)
+    combined: Set[str] = set(d1.keys()).intersection(set(d2.keys()))
+    traversals: int = 0
     try:
         traversals = min(d1[c] + d2[c] for c in combined)
     except ValueError:
         print("no overlapping orbits")
     return traversals
 
+
 def day6_1() -> None:
-    orbs : Dict[str, str] = read_input("day6input")
-    checksum = sum(orbit_counts(i, orbs ) for i in orbs.keys() )
+    orbs: Dict[str, str] = read_input("day6input")
+    checksum = sum(orbit_counts(i, orbs) for i in orbs.keys())
     print(checksum)
 
+
 def day6_2() -> None:
-    orbs : Dict[str, str] = read_input("day6input")
+    orbs: Dict[str, str] = read_input("day6input")
     print(traversal_count("YOU", "SAN", orbs))
+
 
 day6_1()
 day6_2()
