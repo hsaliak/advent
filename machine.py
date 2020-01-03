@@ -36,8 +36,8 @@ class Machine:
         vs = '0'*(4-len(vs)) + vs 
         return Mode(int(vs[-4]))
 
-    def  __init__(self, intcodes: List[int], io=1):
-        self.intcodes = array.array("l", intcodes)  # i can haz efficient
+    def  __init__(self, intcodes: List[int], io : int =1):
+        self.intcodes : array.array[int] = array.array("l", intcodes)  # i can haz efficient
         self.mode : Mode = Mode.POS
         self.io = io
         self.iptr = -1 # instruction pointer
@@ -68,9 +68,8 @@ class Machine:
             self.step(op, stride, param1, param2 ) # moves iptr
         self.iptr = 0
 
-    def step(self, opcode : OpCode, stride : int, param1 : Mode,
-    param2 : Mode ) -> None:
-        ins  : array.array = self.intcodes[self.iptr : self.iptr + stride]
+    def step(self, opcode : OpCode, stride : int, param1 : Mode, param2 : Mode ) -> None:
+        ins  : array.array[int] = self.intcodes[self.iptr : self.iptr + stride]
         #ins  = self.intcodes[self.iptr : self.iptr + stride]
         advance : bool  = True
         codes = self.intcodes

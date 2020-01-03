@@ -15,7 +15,7 @@ def to_digits(n: int) -> List[int]:
 def is_six_digit(ds : List[int]) -> bool:
     return len(ds) == 6
 
-def in_range(n : int, hi = 843212, lo = 353096) -> bool:
+def in_range(n : int, hi : int  = 843212, lo : int  = 353096) -> bool:
     return (n >= lo) and (n <= hi)
 
 def repeated_adjacents(ds : List[int]) -> bool:
@@ -24,14 +24,17 @@ def repeated_adjacents(ds : List[int]) -> bool:
 
 def increasing_digits(ds : List[int]) -> bool:
     d = np.array(ds)
-    return np.all(d[1:] - d[:-1] >= 0)
+    if np.all(d[1:] - d[:-1] >= 0) :
+        return True
+    else:
+        return False
 
 def pass_criteria(n:int)->bool:
     ds : List[int]= to_digits(n) 
     return  increasing_digits(ds) and repeat_criteria(ds)
 
 
-def numbers_in_range(lo = 353096, hi = 843212)-> int:
+def numbers_in_range(lo : int  = 353096, hi : int  = 843212)-> int:
     count = 0
     for i in range(lo, hi+1):
         if pass_criteria(i):

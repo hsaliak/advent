@@ -42,8 +42,8 @@ class Machine:
             if code == OpCode.FIN:
                 break
 
-    def step(self, offset) -> int:
-        ins: array.array = self.intcodes[offset - self.stride : offset]
+    def step(self, offset: int ) -> int:
+        ins: array.array[int] = self.intcodes[offset - self.stride : offset]
         codes = self.intcodes
         if len(ins) != self.stride and len(ins) != 1:
             return OpCode.UNK
@@ -65,7 +65,7 @@ class Machine:
         return self.intcodes.tolist()
 
     @codes.setter
-    def codes(self, intcodes: List[int]):
+    def codes(self, intcodes: List[int]) -> None:
         self.intcodes = array.array("l", intcodes)
 
 
@@ -77,7 +77,7 @@ def get_intcodes(fname: str) -> List[int]:
     return vals
 
 
-def day2_1(intcodes: List[int], v1: int, v2: int):
+def day2_1(intcodes: List[int], v1: int, v2: int) -> None:
     intcodes[1] = v1
     intcodes[2] = v2
     m = Machine(intcodes, 4)

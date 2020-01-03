@@ -56,7 +56,7 @@ def get_intcodes(fname: str) -> List[int]:
     return vals
 
 
-def day2_1(intcodes: List[int], v1: int, v2: int):
+def day2_1(intcodes: List[int], v1: int, v2: int) -> None:
     intcodes[1] = v1
     intcodes[2] = v2
     m = Machine(intcodes)
@@ -86,7 +86,7 @@ def day5_2(intcodes : List[int]) -> None:
     m.process()
     print(m.io)
 
-def equal_to_8():
+def equal_to_8() -> None:
     intcodes = [3,9,8,9,10,9,4,9,99,-1,8]
     m = Machine(intcodes, 1)
     m.process()
