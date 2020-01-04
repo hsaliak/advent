@@ -44,7 +44,7 @@ class Machine:
             "l", intcodes
         )  # i can haz efficient
         self.mode: Mode = Mode.POS
-        self.io: Deque[int] = deque(io)
+        self._io: Deque[int] = deque(io)
         self.iptr = -1  # instruction pointer
         self.params_count: Dict[OpCode, int] = {
             OpCode.ADD: 4,
@@ -102,10 +102,10 @@ class Machine:
             codes[loc] = v1 * v2
         elif opcode == OpCode.SAV:
             loc = ins[1]
-            codes[loc] = self.io.popleft()
+            codes[loc] = self._io.popleft()
         elif opcode == OpCode.LOA:
             loc = ins[1]
-            self.io.append(codes[loc])
+            self._io.append(codes[loc])
         elif opcode == OpCode.JIT:
             if v1 != 0:
                 self.iptr = v2
@@ -130,6 +130,13 @@ class Machine:
             raise ValueError(f"uknown instr: {ins}, stride: {stride}")
         if advance:
             self.iptr += self.params_count[opcode]  # advance by the instruction
+
+    @property 
+    def io(self) -> Deque[int]:
+        return self._io
+    @io.setter
+    def io(self, ios : Iterable[int]):
+        self._io = deque(ios)
 
     @property
     def codes(self) -> List[int]:
