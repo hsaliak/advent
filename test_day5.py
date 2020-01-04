@@ -28,64 +28,65 @@ def test_programs():
     equal_to_8 = [ 3,9,8,9,10,9,4,9,99,-1,8]
     m = Machine(equal_to_8, 0)
     m.codes = equal_to_8
-    m.io = 1
+    m.io = [1]
     m.process()
-    assert m.io == 0
+    assert m.io.pop() == 0
     m.codes = equal_to_8
-    m.io = 8
+    m.io = [8]
     m.process()
-    assert m.io == 1
+    assert m.io == [1]
     less_than_8 = [3,9,7,9,10,9,4,9,99,-1,8]
     m.codes = less_than_8
-    m.io = 1
+    m.io = [1]
     m.process()
-    assert m.io == 1
+    assert m.io == [1]
     m.codes = less_than_8
-    m.io = 35
+    m.io = [35]
     m.process()
-    assert m.io == 0
+    assert m.io == [0]
     equal_to_8_imm = [ 3,3,1108,-1,8,3,4,3,99]
     m.codes = equal_to_8_imm 
-    m.io = 4
+    m.io = [4]
     m.process()
-    assert m.io == 0
+    assert m.io.pop() == 0
     m.codes = equal_to_8_imm 
-    m.io = 8
+    m.io = [8]
     m.process()
-    assert m.io == 1
+    assert m.io.pop() == 1
     less_than_8_imm  = [3,3,1107,-1,8,3,4,3,99]
     m.codes = less_than_8_imm
-    m.io = 4
+    m.io = [4]
     m.process()
-    assert m.io == 1
+    assert m.io.pop()== 1
     m.codes = less_than_8_imm
-    m.io = 8
+    m.io = [8]
     m.process()
-    assert m.io == 0
-    m.io = 9
+    assert m.io == [0]
+    m.io = [9]
     m.process()
-    assert m.io == 0
-    m.io = 4
+    assert m.io == [0]
+
+    m.io = [4]
     m.process()
-    assert m.io == 1
+    assert m.io.pop() == 1
 
 def test_large_program():
     prog = [3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]
     prog_imm = [3,3,1105,-1,9,1101,0,0,12,4,12,99,1]
-    m = Machine(prog, 0)
+    m = Machine(prog, [0])
     m.process()
-    assert m.io == 0
-    mm = Machine(prog_imm,0)
+    assert m.io.pop() == 0
+    mm = Machine(prog_imm,[0])
     mm.process()
-    assert mm.io == 0
-    m.io = 1
+    assert mm.io.pop() == 0
+    m.io = [1]
     m.codes = prog
     m.process()
-    assert m.io == 1
-    mm.io = 1
+    assert m.io.pop() == 1
+    mm.io = [1]
     mm.codes = prog_imm
     mm.process()
-    assert mm.io == 1
+    assert mm.io.pop() == 1
   
    
 

@@ -77,21 +77,21 @@ def day2_2(intcodes: List[int]) -> Tuple[int, int]:
     return (-1, -1)
 
 def day5_1(intcodes : List[int]) -> None:
-    m = Machine(intcodes, 1)
+    m = Machine(intcodes, [1])
     m.process()
     print(m.io)
 
 def day5_2(intcodes : List[int]) -> None:
-    m = Machine(intcodes, 5)
+    m = Machine(intcodes, [5])
     m.process()
     print(m.io)
 
 def equal_to_8() -> None:
     intcodes = [3,9,8,9,10,9,4,9,99,-1,8]
-    m = Machine(intcodes, 1)
+    m = Machine(intcodes, [1])
     m.process()
     print(m.io)
-    m = Machine(intcodes, 8)
+    m = Machine(intcodes,[8] )
     m.process()
     print(m.io)
 if __name__ == "__main__":

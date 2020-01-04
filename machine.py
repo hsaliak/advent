@@ -36,10 +36,10 @@ class Machine:
         vs = '0'*(4-len(vs)) + vs 
         return Mode(int(vs[-4]))
 
-    def  __init__(self, intcodes: List[int], io : int =1):
+    def  __init__(self, intcodes: List[int], io : List[int] =[1]):
         self.intcodes : array.array[int] = array.array("l", intcodes)  # i can haz efficient
         self.mode : Mode = Mode.POS
-        self.io = io
+        self.io  : List[int] = io
         self.iptr = -1 # instruction pointer
         self.params_count : Dict[OpCode, int] = {OpCode.ADD : 4, OpCode.MUL : 4, 
             OpCode.SAV : 2, OpCode.LOA : 2, 
@@ -90,10 +90,10 @@ class Machine:
             codes[loc] = v1 * v2
         elif opcode == OpCode.SAV:
             loc = ins[1]
-            codes[loc] = self.io
+            codes[loc] = self.io.pop()
         elif opcode == OpCode.LOA:
             loc =ins[1]
-            self.io = codes[loc] 
+            self.io.append(codes[loc])
         elif opcode == OpCode.JIT:
             if v1 != 0:
                 self.iptr = v2
