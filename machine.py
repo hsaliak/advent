@@ -2,6 +2,9 @@ import enum
 import array
 from typing import List, Dict, Deque, Iterable
 from collections import deque
+import logging
+
+#logging.basicConfig(filename="machine.log", level=logging.DEBUG)
 
 
 class OpCode(enum.IntEnum):
@@ -40,12 +43,12 @@ class Machine:
         return Mode(int(vs[-4]))
 
     def __init__(self, intcodes: List[int], io: Iterable[int] = [1]):
-        self.intcodes: array.array[int] = array.array(
-            "l", intcodes
-        )  # i can haz efficient
+        self.intcodes: array.array[int] = array.array( "l", intcodes)  # i can haz efficient
+        self.factory_defaults: array.array[int] = array.array( "l", self.intcodes)
         self.mode: Mode = Mode.POS
         self._io: Deque[int] = deque(io)
-        self.iptr = -1  # instruction pointer
+        self.iptr =  0  # instruction pointer
+        self.halted : bool= False
         self.params_count: Dict[OpCode, int] = {
             OpCode.ADD: 4,
             OpCode.MUL: 4,
@@ -59,9 +62,15 @@ class Machine:
             OpCode.UNK: 1,
         }
 
+    def restart(self) -> None:
+        self.halted = False
+        self.iptr = 0
+        self.io = deque([])
+        self.intcodes = array.array("l", self.factory_defaults)
+
     def process(self) -> None:
         # the instruction set is 4.
-        self.iptr = 0
+        #self.iptr = 0
         while self.iptr < len(self.intcodes):
             # for i in range(self.stride, len(self.intcodes), self.stride):
             op: int = self.intcodes[self.iptr]
@@ -78,7 +87,11 @@ class Machine:
             # convert to parameter mode or sh
             stride: int = self.params_count[op]
             self.step(op, stride, param1, param2)  # moves iptr
-        self.iptr = 0
+            if op == OpCode.LOA:
+                #logging.debug(f'yielding control {self._io}')
+                return # yeild control back to the caller, 
+        #logging.debug(f'halting control')
+        #self.iptr = 0
 
     def step(self, opcode: OpCode, stride: int, param1: Mode, param2: Mode) -> None:
         ins: array.array[int] = self.intcodes[self.iptr : self.iptr + stride]
@@ -89,6 +102,7 @@ class Machine:
             raise ValueError(f"uknown instr: {ins}, stride: {stride}")
         if opcode == OpCode.FIN:
             self.iptr = len(self.intcodes)  # advance to the end
+            self.halted = True
             return
         if stride > 1:
             v1: int = ins[1] if param1 == Mode.IMM else codes[ins[1]]
@@ -135,7 +149,7 @@ class Machine:
     def io(self) -> Deque[int]:
         return self._io
     @io.setter
-    def io(self, ios : Iterable[int]):
+    def io(self, ios : Iterable[int]) -> None:
         self._io = deque(ios)
 
     @property

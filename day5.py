@@ -84,7 +84,8 @@ def day5_1(intcodes : List[int]) -> None:
 def day5_2(intcodes : List[int]) -> None:
     m = Machine(intcodes, [5])
     m.process()
-    print(m.io)
+    print(m.io.pop())
+    m.process()
 
 def equal_to_8() -> None:
     intcodes = [3,9,8,9,10,9,4,9,99,-1,8]
