@@ -13,7 +13,7 @@ class Point:
 def unit_vector(p1 : Point, p2 : Point) -> Point:
     direction = Point(p2.x - p1.x, p2.y - p1.y)
     distance = math.sqrt(direction.x ** 2 + direction.y **2 )
-    unit : Point = Point(direction.x / distance, direction.y / distance)
+    unit : Point = Point(round(direction.x / distance, 4), round((direction.y / distance), 4))
     return unit
 
 
@@ -21,7 +21,7 @@ def unit_vector(p1 : Point, p2 : Point) -> Point:
 class Map:
     xlen : int
     ylen : int
-    asteroids : List[Point] = field(default_factory=list)
+    asteroids : Set[Point] = field(default_factory=set)
 
     def __str__(self) -> str :
         mapstr = ''
@@ -44,7 +44,7 @@ class Map:
         for a in others:
             units.add(unit_vector(a, p))
 
-        print(f"{p}, {units}")
+        print(f"{p}:  {len(units)}")
         return len(units)
 
     def best_location(self)->int:
@@ -56,16 +56,16 @@ def read_map(filename : str) -> Map:
         lines = f.readlines()
     xlen : int = len(lines[0].strip())
     ylen : int = len(lines)
-    asteroids : List[Point] = []
+    asteroids : Set[Point] = set()
     for (y, line) in enumerate(lines):
         for(x, p) in enumerate(line):
             if  p == '#':
-                asteroids.append(Point(x,y))
-    return Map(xlen, ylen, asteroids)
+                asteroids.add(Point(x,y))
+    return Map(xlen, ylen, set(asteroids))
 
 
-m : Map = read_map("day10test")
-print(m)
-print(sorted(m.asteroids))
+m : Map = read_map("day10input")
+#print(m)
+#print(m.visibles(Point(x=1, y = 0)))
 print(m.best_location())
 

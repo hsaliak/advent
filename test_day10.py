@@ -15,5 +15,6 @@ def test_points():
 
 def test_map():
     m  = read_map("day10test")
-    assert m == Map(xlen=5, ylen=5, asteroids=[Point(x=0, y=1), Point(x=0, y=4), Point(x=2, y=0), Point(x=2, y=1), Point(x=2, y=2), Point(x=2, y=3), Point(x=2, y=4), Point(x=3, y=4), Point(x=4, y=3), Point(x=4, y=4)])
-
+    print(m)
+    assert m == Map(xlen=5, ylen=5, asteroids={Point(x=1, y=0), Point(x=4, y=0), Point(x=0, y=2), Point(x=1, y=2), Point(x=2, y=2), Point(x=3, y=2), Point(x=4, y=2), Point(x=4, y=3), Point(x=3, y=4), Point(x=4, y=4)})
+    
