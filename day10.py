@@ -34,7 +34,7 @@ class Map:
             mapstr += '\n'
         return mapstr
 
-    def visibles(self, p : Point) -> int:
+    def visibles(self, p : Point) -> Set[Point]:
         if p not in self.asteroids:
             raise ValueError(f"{p} not found in {self.asteroids}")
         
@@ -44,11 +44,27 @@ class Map:
         for a in others:
             units.add(unit_vector(a, p))
 
-        print(f"{p}:  {len(units)}")
-        return len(units)
+        #print(f"{p}:  {len(units)}")
+        return units
 
-    def best_location(self)->int:
-        return max(self.visibles(a) for a in self.asteroids)
+    def viscount(self, p : Point) -> int:
+        return len(self.visibles(p))
+
+    def max_visibles(self)->int:
+        return max(self.viscount(a) for a in self.asteroids)
+
+    def station_location(self) -> Point:
+        vcount : int = 0
+        p : Point
+        for a in self.asteroids:
+            visibles : Set[Point] = self.visibles(a)
+            if len(visibles) > vcount:
+                vcount = len(visibles)
+                p = a
+        return a      
+
+def angle(p :Point):
+    return math.atan2(p.y, p.x) # we want to measure against y axis
             
 
 def read_map(filename : str) -> Map:
@@ -64,8 +80,12 @@ def read_map(filename : str) -> Map:
     return Map(xlen, ylen, set(asteroids))
 
 
-m : Map = read_map("day10input")
+m : Map = read_map("day10test")
 #print(m)
 #print(m.visibles(Point(x=1, y = 0)))
-print(m.best_location())
+print(m.max_visibles())
+station = m.station_location()
+
+vectors =  sorted((a for a in m.visibles(station)), key = angle)
+print(vectors)
 
