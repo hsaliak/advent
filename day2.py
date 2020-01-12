@@ -42,7 +42,7 @@ class Machine:
             if code == OpCode.FIN:
                 break
 
-    def step(self, offset: int ) -> int:
+    def step(self, offset: int) -> int:
         ins: array.array[int] = self.intcodes[offset - self.stride : offset]
         codes = self.intcodes
         if len(ins) != self.stride and len(ins) != 1:

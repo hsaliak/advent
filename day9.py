@@ -15,4 +15,3 @@ m2 = Machine(day9input, [2])
 while not m2.halted:
     m2.process()
 print(m2.io)
-

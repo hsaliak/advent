@@ -20,8 +20,8 @@ Point = namedtuple("Point", "x y")
 
 
 def manhattan_distance(p: Point) -> int:
-    dist : int = abs(p.x) + abs(p.y)
-    return dist 
+    dist: int = abs(p.x) + abs(p.y)
+    return dist
 
 
 # general strategy, find all the points traversed, and then
