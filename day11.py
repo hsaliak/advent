@@ -2,7 +2,7 @@ import enum
 import math
 from dataclasses import dataclass, field
 from collections import deque
-from typing import Dict, DefaultDict, Optional
+from typing import Dict, DefaultDict, Optional, List
 import machine
 from day5 import get_intcodes
 
@@ -56,12 +56,15 @@ class Canvas:
     def painted(self, p : Point)-> bool:
         return p in self.canvas
 
-def paint() -> None:
+def paint(start_color : Optional[int]= None) -> Dict[Point,Color]:
     m = machine.Machine(get_intcodes("day11input"))
     pos : Point = Point(0,0)
     r = Robot(Point(0,0), turn, 1.0)
     c = Canvas()
-    m.io = deque([c.color(pos)])
+    if start_color:
+        print(Color(start_color))
+        c.paint(pos,Color(start_color))
+    m.io = deque([c.color(pos)]) #
     while not m.halted:
         try:
             m.process() # compute color
@@ -72,9 +75,34 @@ def paint() -> None:
             pos =  r.step(tur)
             m.io.append(c.color(pos))
         except IndexError:
+            print("index error")
             break
     print(c.painted_grids)
+    return c.canvas
 
 
-paint()
+from matplotlib import pyplot as plt
+def display(d : Dict[Point, Color]):
+    xs  = []
+    ys  = []
+    xb  = []
+    yb  = []
+    for (p, v) in d.items():
+        if v == Color.WHITE:
+            xs.append(p.x)
+            ys.append(p.y)
+        if v == Color.BLACK:
+            xb.append(p.x)
+            yb.append(p.y)
+
+    plt.xlim(-20,50)
+    plt.ylim(-20,20)
+    plt.plot(xs,ys, 'rx-' )
+    plt.plot(xb,yb, 'wo-' )
+    plt.savefig('11_2.png')
+
+points = paint(start_color=1)
+display(points)
+
+
 
