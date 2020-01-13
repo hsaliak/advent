@@ -35,8 +35,6 @@ class Color(enum.IntEnum):
     BLACK = 0
     WHITE = 1
 
-s = Robot(Point(0,0), turn, 1.0)
-
 
 @dataclass
 class Canvas:
