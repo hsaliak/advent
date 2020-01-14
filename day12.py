@@ -77,7 +77,6 @@ class HeavenlyBody:
             if pairs == initial_pairs:
                 break
 
-        print(pairs, initial_pairs)
         return step
 
 
