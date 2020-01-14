@@ -25,4 +25,12 @@ def test_energy() -> None:
     for i in range(10):
         hb.step()
     assert hb.energy == 179
-    
+
+def test_steps() -> None:
+    m1 : Moon = Moon([-1,0,2],[0,0,0])
+    m2 : Moon = Moon([2,-10,-7], [0,0,0])
+    m3 : Moon = Moon([4,-8,8],[0,0,0])
+    m4 : Moon = Moon([3,5,-1], [0,0,0])
+    hb = HeavenlyBody([m1,m2,m3,m4])
+    nrepeats = hb.repeats()
+    assert nrepeats == 2772
