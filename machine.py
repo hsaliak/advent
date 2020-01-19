@@ -7,6 +7,12 @@ import math
 
 # logging.basicConfig(filename="machine.log", level=logging.DEBUG)
 
+def get_intcodes(fname: str) -> List[int]:
+    vals: List[int] = []
+    with open(fname) as f:
+        line = f.readlines()[0]
+        vals = [int(v) for v in line.split(",")]
+    return vals
 
 class OpCode(enum.IntEnum):
     ADD = 1
