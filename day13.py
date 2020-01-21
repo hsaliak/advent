@@ -1,4 +1,5 @@
-from typing import List, Iterable, Deque, Optional
+from __future__ import annotations
+from typing import List, Iterable, Deque, Optional, Tuple
 from dataclasses import dataclass
 import machine
 from enum import IntEnum
@@ -41,7 +42,7 @@ class Cabinet:
         self.m = machine.Machine(gamecodes, [])
         self.gamecodes = gamecodes
         self.m.restart()
-        self.joystick = Joystick(self)
+        self.joystick = AIJoystick(self)
         self.m.attach(self.joystick)
 
 
@@ -54,11 +55,14 @@ class Cabinet:
             ios : List[int]
             m.process() 
             # see if the score needs to be printed
+        self.display() # final score
     
-    def display(self, clear : bool  = True) -> None:
+    def display(self, clear : bool  = True) -> Tuple[int,int]: # return ball column position
         output : List[int] =  list(self.m.io)
         ncols : int  = max(output[0::3]) +1  # zero idx
         nrows : int = max(output[1::3]) +1  # zero idx 
+        ballcol : int = ncols // 2   # center it
+        paddlecol : int = ncols // 2   # center it
         # build a char array of tiles
         tiles : array.array[int] = array.array('b', [0] * (nrows * ncols))
         score : Optional[int] = None 
@@ -83,17 +87,20 @@ class Cabinet:
                 tiles[row * ncols + col] =   block_tile
             elif tile == Tile.HPADDLE:
                 tiles[row * ncols + col] =  paddle_tile
+                paddlecol = col
             elif tile == Tile.BALL:
                 tiles[row * ncols + col] =  ball_tile
+                ballcol = col
 
         for i in range(0, nrows):
             print(tiles[i*ncols: (i+1) *ncols].tobytes().decode())
 
         if score:
-            print(f"SCORE {score}")
+            print(f"SCORE {score}\n\n")
 
         if clear:
             self.m.io.clear()
+        return (ballcol, paddlecol)
 
     def count_blocks(self)->int:
         self.m.restart()
@@ -125,10 +132,23 @@ class Joystick(machine.InputPeripheral):
         self.c.display(clear=False)
         return int(self.get_input())
 
+
+class AIJoystick(Joystick):
+    def get(self) -> int:
+        positions = self.c.display(clear=False)
+        return int(self.aiget( positions ))
+
+    def aiget(self, positions : Tuple[int, int]) -> Movement:
+        """ machine learning is the future """
+        bc, pc = positions
+        if bc > pc:
+            return Movement.RIGHT
+        elif bc < pc:
+           return Movement.LEFT
+        else:
+           return Movement.NEUTRAL
+
 if __name__ == '__main__':
     c : Cabinet = Cabinet()
     #nblocks : int = c.count_blocks()
     c.gameloop()
-
-
-        
