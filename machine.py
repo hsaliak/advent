@@ -1,6 +1,6 @@
 import enum
 import array
-from typing import List, Dict, Deque, Iterable
+from typing import List, Dict, Deque, Iterable, Union, Optional
 from collections import deque
 import logging
 import math
@@ -36,6 +36,20 @@ class Mode(enum.IntEnum):
     REL = 2
 
 
+# to be subclassed, this class represents something that
+# provides an input into the Machine.
+# when present, it overrides the default behaviour of
+# reading from the I/O buffer. 
+class InputPeripheral:
+    def get(self) -> int:
+        "gets an integer from a peripheral"
+        raise NotImplementedError
+
+# to be subclassed, this class overrides the I/O buffer when present
+class OutputPeripheral:
+    def put(self, value : int ) -> None:
+        raise NotImplementedError
+
 class Machine:
     def __init__(self, intcodes: List[int], io: Iterable[int] = [1]):
         self.intcodes: array.array[int] = array.array(
@@ -61,6 +75,18 @@ class Machine:
             OpCode.FIN: 1,
             OpCode.UNK: 1,
         }
+        self.input_peripheral : Optional[InputPeripheral] = None
+        self.output_peripheral : Optional[OutputPeripheral] = None
+        
+
+    # Needed for Day 13, let's attach some peripherals
+    # keep it simple, calling it multiple time overloads the peripheral
+    def attach(self, peripheral: Union[InputPeripheral, OutputPeripheral]) -> None:
+        if isinstance(peripheral, InputPeripheral):
+            self.input_peripheral = peripheral
+        else: 
+            raise NotImplementedError
+        
 
     def restart(self) -> None:
         self.halted = False
@@ -140,7 +166,11 @@ class Machine:
             self.store(v1 * v2, loc, param3)
         elif opcode == OpCode.SAV:
             loc = ins[1]
-            self.store(self._io.popleft(), loc, param1)
+            if not self.input_peripheral:
+                value = self._io.popleft()
+            else: 
+                value = self.input_peripheral.get()
+            self.store(value, loc, param1)
         elif opcode == OpCode.LOA:
             loc = ins[1]
             self._io.append(self.fetch(loc, param1))

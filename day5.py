@@ -48,13 +48,13 @@ logging.basicConfig(filename="day5.log", level=logging.DEBUG)
 from machine import *
 
 
-def get_intcodes(fname: str) -> List[int]:
-    vals: List[int] = []
-    with open(fname) as f:
-        line = f.readlines()[0]
-        vals = [int(v) for v in line.split(",")]
-    return vals
-
+#def get_intcodes(fname: str) -> List[int]:
+#    vals: List[int] = []
+#    with open(fname) as f:
+#        line = f.readlines()[0]
+#        vals = [int(v) for v in line.split(",")]
+#    return vals
+#
 
 def day2_1(intcodes: List[int], v1: int, v2: int) -> None:
     intcodes[1] = v1
