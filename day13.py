@@ -72,7 +72,7 @@ class Cabinet:
             col = output[i]
             row = output[i+1]
             tile = output[i+2]
-            if row == -1 and col == 0:
+            if col == -1 and row == 0:
                 score = tile
                 continue
             if tile ==  Tile.EMPTY:
@@ -90,7 +90,7 @@ class Cabinet:
             print(tiles[i*ncols: (i+1) *ncols].tobytes().decode())
 
         if score:
-            print(f"SEGMENT {score}")
+            print(f"SCORE {score}")
 
         if clear:
             self.m.io.clear()
