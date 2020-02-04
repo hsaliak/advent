@@ -72,24 +72,26 @@ def transforms(frm : str, chembook: Dict[str, Equation] ) -> Optional[str]:
     for eq in chembook.values():
         if len(eq.lhs) == 1:
             if eq.lhs[0].elt == frm:
+                print(eq)
                 return eq.rhs.elt
     return None
 
 def compactEquation(es : List[Chem] , chembook : Dict[str, Equation]) -> List[Chem]:
-    ce = es[:]
-    cni =  { v.elt : i for i , v in enumerate(es)}
-    elts = cni.keys()
-    for c in elts:
-        t = transforms(c, chembook) # t is what it transforms to 
-        if t and t in cni: # so we can compact
-            tidx = cni[t]
-            cidx = cni[c]
-            elt2c = reaction(es[tidx], chembook)[0] # this is the transforms to 
-            ce[cidx].count += elt2c.count
-            ce.pop(tidx)
-            cni =  { v.elt : i for i , v in enumerate(ce)} # reset dict
+    # for each item in the equation, check if it can be transformed into another present
+    # if it can be, then remove it from the list and add it. 
+    # maybe do an ordered Dict of Key and Value
+    esd : OrderedDict[str, int] = OrderedDict((e.elt, e.count) for e in es)
+    esdi = esd.copy()
+    for e in esdi.keys():
+        t = transforms(e, chembook) # t is what it transforms to 
+        if t and t in esd: # so we can compact
+            reagent = reaction(Chem(esd[t], t), chembook)[0] # reagent should be t
+            print(reagent.elt, e, ":", t)
+            assert reagent.elt == e # ensure this
+            esd[t] += reagent.count
+            esd.pop(e) # get rid of it
             
-    return ce # no early return
+    return [Chem(v,k) for k,v in esd.items()] # no early return
 
 
 def addto(d : OrderedDict[str, int], k : str, v : int) -> None:
