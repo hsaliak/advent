@@ -49,7 +49,7 @@ def isbase(s : str, chembook : Dict[str, Equation]) -> bool:
 
 def orecount(ones : Dict[str, int], chembook : Dict[str, Equation])-> int:
     amt : int = 0
-    print(f"ores from {ones}")
+    #print(f"ores from {ones}")
     assert len(ones) == len(set(ones.keys()))
     for chemical, count  in ones.items():
         base_chemicals = reaction(Chem(count, chemical), chembook )
@@ -66,66 +66,77 @@ def isreagent(c: str, e : Equation) -> bool:
     return False
 
 def transforms(frm : str, chembook: Dict[str, Equation] ) -> Optional[str]:
-    if isbase(frm, chembook):
-        return None
-        
     for eq in chembook.values():
         if len(eq.lhs) == 1:
             if eq.lhs[0].elt == frm:
-                print(eq)
                 return eq.rhs.elt
+    return None
+
+def decompose(to : str, chembook : Dict[str, Equation]) -> Optional[str]:
+    eq = chembook[to]
+    if len(eq.lhs) == 1 and eq.lhs[0].elt != "ORE":
+        return eq.lhs[0].elt
     return None
 
 def compactEquation(es : List[Chem] , chembook : Dict[str, Equation]) -> List[Chem]:
     # for each item in the equation, check if it can be transformed into another present
     # if it can be, then remove it from the list and add it. 
     # maybe do an ordered Dict of Key and Value
-    esd : OrderedDict[str, int] = OrderedDict((e.elt, e.count) for e in es)
+    esd : OrderedDict[str, int]  = OrderedDict()
+    for x in es:
+        if x.elt in esd:
+            esd[x.elt] += x.count
+        else:
+            esd[x.elt] = x.count
     esdi = esd.copy()
     for e in esdi.keys():
-        t = transforms(e, chembook) # t is what it transforms to 
+        if e == "ORE":
+            print("here is some ore ")
+            continue
+        t = decompose(e, chembook)
         if t and t in esd: # so we can compact
-            reagent = reaction(Chem(esd[t], t), chembook)[0] # reagent should be t
+            print(f"compacting {es} by decomposing {e} to  {t}")
+            reagent = reaction(Chem(esd[e], e), chembook)[0] 
             print(reagent.elt, e, ":", t)
-            assert reagent.elt == e # ensure this
-            esd[t] += reagent.count
-            esd.pop(e) # get rid of it
+            esd[reagent.elt] += reagent.count # bmbpt
+            esd.pop(e) # get rid of it  -- this now has bmbt only
+            print(esd)
+            return compactEquation([Chem(v,k) for k,v in esd.items()], chembook)
             
-    return [Chem(v,k) for k,v in esd.items()] # no early return
+    return [Chem(v,k) for k,v in esd.items()] 
 
 
-def addto(d : OrderedDict[str, int], k : str, v : int) -> None:
-    if k in d:
-        d[k] += v
+def addto(chemicals : List[Chem], c : Chem) -> None:
+    if c in chemicals:
+        chemicals[chemicals.index(c)].count += c.count
     else:
-        d[k] = v
+        chemicals.append(c)
 
 def chain_reaction2( c : Chem, chembook : Dict[str, Equation] = {} ) -> int:
     """ does a chain reaction and returns the amount of ore required """ 
-    chemicals : OrderedDict[str, int] = OrderedDict(((e.elt, e.count) for e in reaction(c, chembook)))
-    while any(not isbase(x, chembook) for x in chemicals.keys()): 
-        print(f" chemicals {chemicals} \n ")
-        cname, counts = chemicals.popitem(last=False) # pop the first thing out 
-        if isbase(cname, chembook ): # leave it alone
-            chemicals[cname] = counts # reinsert
-            continue
+    chemicals = reaction(c, chembook)
+    chemicals = compactEquation(chemicals, chembook) # compact the equation
+    basechems : Dict[str, int] =  {}
+    oreamt = 0
+    while  chemicals: 
+        c = chemicals.pop()
+        if isore(c): # leave it alone
+            oreamt += c.count
+        elif isbase(c.elt, chembook):
+            if c.elt not in basechems:
+                basechems[c.elt] = c.count
+            else:
+                basechems[c.elt] += c.count
         else: # it's not a base chemicals, do a reaction
-            
-            base_chemicals = reaction(Chem(counts, cname), chembook) # get the reaction 
-            print(base_chemicals)
+            base_chemicals = reaction(c , chembook) 
             base_chemicals = compactEquation(base_chemicals, chembook )
-            print(base_chemicals)
-            
             for r in base_chemicals:
-                #t : Optional[str] = transforms(r.elt, chembook) # we can break this down
-                #if t:
-                #    tchems = reaction(r, chembook)
-                #    for tc in tchems:
-                #        addto(chemicals, tc.elt, tc.count)
-                #else:
-                addto(chemicals, r.elt, r.count) # add to catalog
-    # now its all base chemicals
-    return orecount(chemicals, chembook)
+                if isore(r):
+                    oreamt += r.count
+                else:
+                    chemicals.append(r)
+                    chemicals = compactEquation(chemicals, chembook)
+    return oreamt + orecount(basechems, chembook)
 
 def parse_chembook(fname : str) -> Dict[str, Equation]:
     with open(fname) as f:
@@ -150,4 +161,4 @@ if __name__ == '__main__':
     fuel : Chem = Chem(1, "FUEL")
     chembook = parse_chembook("testinput5")
     amt = chain_reaction2(fuel, chembook)
-    print(amt)
+    print(f"final {amt}")
