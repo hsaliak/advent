@@ -112,8 +112,62 @@ def parse_chembook(fname : str) -> Dict[str, Equation]:
     return chembook
 
 
+def day1( b : Dict[str, Equation] ) -> None:
+    #c = Chem("FUEL", 82892753)
+    c = Chem("FUEL", 1)
+    chain_reaction2(c, b)
+
+def day2( maxore : int, b : Dict[str, Equation]) -> None:
+    """ find the amount of FUEL that can be produced from 1t ore """ 
+    findmaxfuel(b)
+    # we double the number of fuel produced each time until the number
+    # if the ore needed is less than 1 trillion 
+    # we double the number of produced
+    # if it is greater than 1 trillion
+    # take the last value less than 1 trillion and current and average
+    # the number of fuel and see what we get. 
+      
+
+def findmaxfuel(b : Dict[str, Equation]) -> int:
+
+    # find the maximum amount of fuel that can be produced by 1t ore
+    # we do this by doubling the amount of fuel produced. 
+    # this is the lower bound
+    # until we use more than 1 trillion ore.  this is the upper bound
+    # once we have an upper and lower bound. 
+    # we get midpoint. 
+    # if the ore needed is > 1 trillion, we update upper bound with mp
+    # if the ore needed is < 1 trillion we update lower bound with 1t
+    # if upperbound - lowerbound = 1, we return the value of lower bound
+    trillion : int = 1000000000000
+    lowerbound : int  = 1
+    upperbound : Optional[int] = None
+    while (not upperbound) or ((upperbound - lowerbound) > 1):
+        if upperbound:
+            count = (lowerbound + upperbound) //2  # find avg
+        else:
+            count = lowerbound
+        c = Chem("FUEL", count) 
+        oreneeded = chain_reaction2(c, b)
+        if oreneeded < trillion:
+            if upperbound: # move up lower bound
+                lowerbound = count
+            else: 
+                lowerbound = lowerbound * 2  #
+        elif oreneeded > trillion: # overshot, 
+            if not upperbound:
+                lowerbound = count // 2
+            upperbound = count  # bring in upper bound
+        else: # found it 
+            return c.count
+    print(f"L{lowerbound}: U{upperbound} ore => {oreneeded} delta => {oreneeded - trillion}")
+    return lowerbound
     
+
+
 if __name__ == '__main__':
     chembook = parse_chembook("day14input")
-    c = Chem("FUEL", 1)
-    print(chain_reaction2(c, chembook))
+    day1(chembook)
+    trillion : int = 1000000000000
+    day1(chembook)
+    day2(trillion, chembook)
